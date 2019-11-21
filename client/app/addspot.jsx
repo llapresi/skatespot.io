@@ -5,6 +5,7 @@ import { Snackbar } from '@rmwc/snackbar';
 import PropTypes from 'prop-types';
 import history from './History';
 import AddSpotBottomSheet from './Widgets/AddSpotBottomSheet';
+import withRunOnMount from './Widgets/WithRunOnMount';
 
 class SpotForm extends React.Component {
   constructor(props) {
@@ -108,4 +109,4 @@ SpotForm.propTypes = {
   setSpotCallback: PropTypes.func.isRequired,
 };
 
-export default SpotForm;
+export default withRunOnMount(SpotForm);

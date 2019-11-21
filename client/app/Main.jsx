@@ -60,6 +60,7 @@ class App extends React.Component {
     this.checkUserAuth = this.checkUserAuth.bind(this);
     this.getUserGeolocation = this.getUserGeolocation.bind(this);
     this.snackbar = React.createRef();
+    this.setParentState = this.setParentState.bind(this);
   }
 
   componentDidMount() {
@@ -155,12 +156,8 @@ class App extends React.Component {
     }
   }
 
-  checkUserAuth() {
-    sendAjax('GET', '/isUserAuthed', null, (data) => {
-      if (data.account !== undefined) {
-        this.setState({ userAuthed: true, userAuthedName: data.account.username });
-      }
-    });
+  setParentState(state) {
+    this.setState(state);
   }
 
   hideSpotCard() {
@@ -189,6 +186,14 @@ class App extends React.Component {
         this.setState({ spots: data.spots, lastFetchedCenter: center });
       });
     }
+  }
+
+  checkUserAuth() {
+    sendAjax('GET', '/isUserAuthed', null, (data) => {
+      if (data.account !== undefined) {
+        this.setState({ userAuthed: true, userAuthedName: data.account.username });
+      }
+    });
   }
 
   render() {
@@ -243,35 +248,30 @@ class App extends React.Component {
                       exact
                       path="/"
                       render={() => (
-                        <React.Fragment>
-                          <RunOnMount func={() => {
-                            this.setState({ addingNewSpot: 0, toolbarTitle: '' });
-                          }}
-                          />
+                        <RunOnMount
+                          onMount={this.setParentState}
+                          onMountParams={{ addingNewSpot: 0, toolbarTitle: '' }}
+                        >
                           {selectedSpot !== null
                           && <SpotCard spot={selectedSpot} />
                           }
-                        </React.Fragment>
+                        </RunOnMount>
                       )}
                     />
                     <Route
                       exact
                       path="/login"
                       render={() => (
-                        <React.Fragment>
-                          <RunOnMount func={() => {
-                            this.setState({ addingNewSpot: 0, toolbarTitle: 'Login' });
+                        <LoginWindow
+                          onMount={this.setParentState}
+                          onMountParams={{ toolbarTitle: 'Login' }}
+                          csrf={csrf}
+                          onLogin={() => {
+                            this.checkUserAuth();
+                            this.setSnackbar('Logged In');
                           }}
-                          />
-                          <LoginWindow
-                            csrf={csrf}
-                            onLogin={() => {
-                              this.checkUserAuth();
-                              this.setSnackbar('Logged In');
-                            }}
-                            onError={this.setSnackbar}
-                          />
-                        </React.Fragment>
+                          onError={this.setSnackbar}
+                        />
                       )}
                     />
 
@@ -279,70 +279,62 @@ class App extends React.Component {
                       exact
                       path="/logout"
                       render={() => (
-                        <React.Fragment>
-                          <RunOnMount func={() => {
-                            this.setState({ addingNewSpot: 0, toolbarTitle: '' });
+                        <Logout
+                          onLogout={() => {
+                            this.setState({ userAuthed: false, userAuthedName: '' }, () => {
+                              this.setSnackbar('Logged Out');
+                              this.getCSRFToken();
+                              history.goBack();
+                            });
                           }}
-                          />
-                          <Logout
-                            onLogout={() => {
-                              this.setState({ userAuthed: false, userAuthedName: '' }, () => {
-                                this.setSnackbar('Logged Out');
-                                this.getCSRFToken();
-                                history.goBack();
-                              });
-                            }}
-                            onError={this.setSnackbar}
-                          />
-                        </React.Fragment>
+                          onError={this.setSnackbar}
+                          onMount={this.setParentState}
+                          onMountParams={{ toolbarTitle: '' }}
+                        />
                       )}
                     />
 
                     <Route
                       path="/search"
                       render={() => (
-                        <React.Fragment>
-                          <RunOnMount func={() => {
-                            this.setState({ addingNewSpot: 0, toolbarTitle: '' });
-                          }}
-                          />
-                          <SpotSearchParent center={center} />
-                        </React.Fragment>
+                        <SpotSearchParent
+                          center={center}
+                          onMount={this.setParentState}
+                          onMountParams={{ toolbarTitle: 'Search' }}
+                        />
                       )}
                     />
 
                     <Route
                       path="/spot/:id"
                       render={props => (
-                        <React.Fragment>
-                          <RunOnMount func={() => {
+                        <SpotViewParent
+                          key={props.match.params.id}
+                          csrf={csrf}
+                          onOpen={(newCenter, title) => {
+                            this.setState({ center: newCenter, toolbarTitle: title }, () => {
+                              this.updateSpots(true);
+                            });
+                          }}
+                          userAuthed={userAuthed}
+                          onReviewAdd={this.setSnackbar}
+                          onMount={() => {
                             this.setState({ addingNewSpot: 0 });
                             this.stopWatchingGeolocation();
                           }}
-                          />
-                          <SpotViewParent
-                            key={props.match.params.id}
-                            csrf={csrf}
-                            onOpen={(newCenter, title) => {
-                              this.setState({ center: newCenter, toolbarTitle: title }, () => {
-                                this.updateSpots(true);
-                              });
-                            }}
-                            userAuthed={userAuthed}
-                            onReviewAdd={this.setSnackbar}
-                            {...props}
-                          />
-                        </React.Fragment>
+                          {...props}
+                        />
                       )}
                     />
 
                     <Route
                       path="/profile"
                       render={() => (
-                        <React.Fragment>
-                          <RunOnMount func={() => this.setState({ addingNewSpot: 0, toolbarTitle: 'Change Password' })} />
-                          <AccountMenu csrf={csrf} />
-                        </React.Fragment>
+                        <AccountMenu
+                          csrf={csrf}
+                          onMount={this.setParentState}
+                          onMountParams={{ toolbarTitle: 'Change Password' }}
+                        />
                       )}
                     />
 
@@ -350,19 +342,16 @@ class App extends React.Component {
                       path="/add"
                       userAuthed={userAuthed}
                       render={() => (
-                        <React.Fragment>
-                          <RunOnMount func={() => {
+                        <SpotForm
+                          csrf={csrf}
+                          loc={center}
+                          submitCallback={this.onNewSpot}
+                          setSpotCallback={this.setNewSpotLocation}
+                          onMount={() => {
                             this.setState({ addingNewSpot: 1, toolbarTitle: 'Add Spot' });
                             this.stopWatchingGeolocation();
                           }}
-                          />
-                          <SpotForm
-                            csrf={csrf}
-                            loc={center}
-                            submitCallback={this.onNewSpot}
-                            setSpotCallback={this.setNewSpotLocation}
-                          />
-                        </React.Fragment>
+                        />
                       )}
                     />
                   </Switch>

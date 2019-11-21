@@ -4,6 +4,7 @@ import ReactRouterPropTypes from 'react-router-prop-types';
 import { sendAjax } from '../helper/helper';
 import { ReviewList } from './reviews';
 import ObjectPropTypes from './ObjectShapes';
+import withRunOnMount from './Widgets/WithRunOnMount';
 
 const SpotView = ({
   spot, id, csrf, onReviewAdd, userAuthed,
@@ -84,4 +85,4 @@ SpotViewParent.propTypes = {
   userAuthed: PropTypes.bool.isRequired,
 };
 
-export default SpotViewParent;
+export default withRunOnMount(SpotViewParent);

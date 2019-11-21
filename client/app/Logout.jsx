@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import withRunOnMount from './Widgets/WithRunOnMount';
 
 class Logout extends React.Component {
   componentDidMount() {
@@ -28,4 +29,4 @@ Logout.propTypes = {
   onError: PropTypes.func.isRequired,
 };
 
-export default Logout;
+export default withRunOnMount(Logout);

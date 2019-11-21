@@ -2,6 +2,7 @@ import React from 'react';
 import { Snackbar } from '@rmwc/snackbar';
 import PropTypes from 'prop-types';
 import ChangePasswordForm from './Widgets/ChangePasswordForm';
+import withRunOnMount from './Widgets/WithRunOnMount';
 
 class AccountMenu extends React.Component {
   constructor(props) {
@@ -46,4 +47,4 @@ AccountMenu.propTypes = {
   csrf: PropTypes.string.isRequired,
 };
 
-export default AccountMenu;
+export default withRunOnMount(AccountMenu);

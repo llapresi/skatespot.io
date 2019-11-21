@@ -8,6 +8,7 @@ import { Button } from '@rmwc/button';
 import { sendAjax } from '../helper/helper';
 import HideAddSpot from './Transitions/HideAddSpot';
 import history from './History';
+import withRunOnMount from './Widgets/WithRunOnMount';
 
 const makePublicSpotsURL = (name = '', latlng = null, showAll = false) => {
   const maxDistanceKm = 6;
@@ -141,4 +142,4 @@ SpotSearch.propTypes = {
   spots: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
-export default SpotSearchParent;
+export default withRunOnMount(SpotSearchParent);

@@ -13,6 +13,7 @@ import { TabBar, Tab } from '@rmwc/tabs';
 import PropTypes from 'prop-types';
 import history from './History';
 import NoTransition from './Transitions/NoTransition';
+import withRunOnMount from './Widgets/WithRunOnMount';
 
 class LoginWindow extends React.Component {
   constructor(props) {
@@ -157,4 +158,4 @@ LoginWindow.propTypes = {
   onError: PropTypes.func.isRequired,
 };
 
-export default LoginWindow;
+export default withRunOnMount(LoginWindow);

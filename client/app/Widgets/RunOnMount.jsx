@@ -1,16 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import withRunOnMount from './WithRunOnMount';
 
-export default class RunOnMount extends React.Component {
-  componentDidMount() {
-    const { func } = this.props;
-    func();
-  }
+const RunOnMount = ({ children }) => (
+  <div>
+    {children}
+  </div>
+);
 
-  render() {
-    return (null);
-  }
-}
-RunOnMount.propTypes = {
-  func: PropTypes.func.isRequired,
-};
+export default withRunOnMount(RunOnMount);

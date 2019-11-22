@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { List, SimpleListItem } from '@rmwc/list';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -19,73 +19,51 @@ const makePublicSpotsURL = (name = '', latlng = null, showAll = false) => {
   return `/spots?filter=${name}${locCenter}`;
 };
 
-class SpotSearchParent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      spots: [],
-      showAll: false,
-    };
-    this.searchField = React.createRef();
-    this.updateSpotList = this.updateSpotList.bind(this);
-  }
+const SpotSearchParent = (props) => {
+  const [spots, setSpots] = useState([]);
+  const [showAll, setShowAll] = useState(false);
+  const [searchField, setSearchField] = useState('');
 
-  componentDidMount() {
-    this.updateSpotList();
-  }
+  const { center } = props;
 
-  updateSpotList() {
-    const { center } = this.props;
-    let { showAll } = this.state;
-    const filterValue = this.searchField.current.value === undefined ? '' : this.searchField.current.value;
-    if (filterValue !== '') {
-      showAll = true;
-    }
-    const toFetch = makePublicSpotsURL(filterValue, center, showAll);
+  useEffect(() => {
+    const searchAll = searchField === '' ? showAll : true;
+    const toFetch = makePublicSpotsURL(searchField, center, searchAll);
     sendAjax('GET', toFetch, null, (data) => {
-      this.setState({ spots: data.spots });
+      setSpots(data.spots);
     });
-  }
+  }, [searchField, showAll]);
 
-  render() {
-    const showLocalControl = (
-      this.searchField !== null && this.searchField.current !== null
-      && this.searchField.current.value === ''
-    );
-    const { spots, showAll } = this.state;
-    return (
-      <div className="skateSpotListParent desktop-400 horizontal__desktop">
-        <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f2f2f2' }}>
-          <TextField
-            inputRef={this.searchField}
-            className="newSearchBar"
-            onChange={this.updateSpotList}
-            label="Search all spots"
-            withLeadingIcon={(
-              <TextFieldIcon
-                tabIndex="0"
-                icon="arrow_back"
-                onClick={() => history.push('/', { HideAddSpot })}
-              />
-            )}
-          />
-        </div>
-        {showLocalControl
-        && (
-        <SpotNearbyControl
-          onClick={() => {
-            this.setState({ showAll: !showAll }, () => {
-              this.updateSpotList();
-            });
-          }}
-          showAll={showAll}
+  const showLocalControl = searchField === '';
+
+  return (
+    <div className="skateSpotListParent desktop-400 horizontal__desktop">
+      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f2f2f2' }}>
+        <TextField
+          className="newSearchBar"
+          onChange={e => setSearchField(e.target.value)}
+          label="Search all spots"
+          withLeadingIcon={(
+            <TextFieldIcon
+              tabIndex="0"
+              icon="arrow_back"
+              onClick={() => history.push('/', { HideAddSpot })}
+            />
+          )}
         />
-        )}
-        <SpotSearch spots={spots} />
       </div>
-    );
-  }
-}
+      {showLocalControl
+      && (
+      <SpotNearbyControl
+        onClick={() => setShowAll(!showAll)}
+        showAll={showAll}
+      />
+      )}
+      <SpotSearch spots={spots} />
+    </div>
+  );
+};
+
 SpotSearchParent.propTypes = {
   center: PropTypes.shape({
     lat: PropTypes.number,

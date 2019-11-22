@@ -18,14 +18,9 @@ const SpotCard = ({ spot }) => {
     },
   };
   const { owner, name, description } = spot;
-  let username = '[invalid user]';
+  const username = owner && owner.username ? owner.username : '[invalid user]';
   const spotname = name || '[invalid spotname]';
   const descriptionBody = description || '[invalid description]';
-
-  if (owner && owner.username) {
-    const { username: spotUsername } = owner;
-    username = spotUsername;
-  }
 
   return (
     <Card style={{

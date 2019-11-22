@@ -1,5 +1,5 @@
 // This isn't actually a folder anymore, just a self-contained class for a dialog
-import React from 'react';
+import React, { useState } from 'react';
 import { Fab } from '@rmwc/fab';
 import { SimpleDialog } from '@rmwc/dialog';
 import PropTypes from 'prop-types';
@@ -7,47 +7,43 @@ import history from '../History';
 import NoTransition from '../Transitions/NoTransition';
 
 
-class Folder extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showContent: false,
-    };
-    this.openReviewDialog = this.openReviewDialog.bind(this);
-  }
+const Folder = (props) => {
+  const [showContent, setShowContent] = useState(false);
+  const {
+    folderName,
+    children,
+    acceptCallback,
+    userAuthed,
+  } = props;
 
-  openReviewDialog() {
-    const { userAuthed } = this.props;
+  const openReviewDialog = () => {
     if (userAuthed) {
-      this.setState({ showContent: true });
+      setShowContent(true);
     } else {
       history.push('/login', { NoTransition });
     }
-  }
+  };
 
-  render() {
-    const { folderName, children, acceptCallback } = this.props;
-    const { showContent } = this.state;
-    return (
-      <React.Fragment>
-        <Fab
-          icon="add"
-          className="fab__review"
-          label={folderName}
-          onClick={this.openReviewDialog}
-        />
-        <SimpleDialog
-          title={folderName}
-          body={children}
-          open={showContent}
-          onClose={() => this.setState({ showContent: false })}
-          onAccept={acceptCallback}
-          acceptLabel="Submit"
-        />
-      </React.Fragment>
-    );
-  }
-}
+  return (
+    <React.Fragment>
+      <Fab
+        icon="add"
+        className="fab__review"
+        label={folderName}
+        onClick={openReviewDialog}
+      />
+      <SimpleDialog
+        title={folderName}
+        body={children}
+        open={showContent}
+        onClose={() => setShowContent(false)}
+        onAccept={acceptCallback}
+        acceptLabel="Submit"
+      />
+    </React.Fragment>
+  );
+};
+
 Folder.propTypes = {
   folderName: PropTypes.string.isRequired,
   children: PropTypes.element.isRequired,

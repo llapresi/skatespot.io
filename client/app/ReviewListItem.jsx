@@ -1,54 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SimpleListItem } from '@rmwc/list';
 import ObjectPropTypes from './ObjectShapes';
 
-export default class ReviewListItem extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showFullText: false,
-    };
-  }
+const ReviewListItem = (props) => {
+  const [fullText, setFullText] = useState(false);
+  const { review } = props;
+  const { author, rating: reviewRating, reviewText } = review;
 
-  toggleFullText() {
-    const { showFullText } = this.state;
-    this.setState({ showFullText: !showFullText });
-  }
+  const className = fullText ? 'review-list-item review-list-item__active' : 'review-list-item';
+  const username = author && author.username ? author.username : '[invalid username]';
+  const reviewBody = reviewText || '[invalid review text]';
+  const rating = reviewRating || '[invalid rating]';
 
-  render() {
-    const { showFullText } = this.state;
-    const { review } = this.props;
-    let className = 'review-list-item';
-    if (showFullText === true) {
-      className += ' review-list-item__active';
-    }
+  const usernameRating = `${username} - ${rating}`;
+  return (
+    <SimpleListItem
+      onClick={() => setFullText(!fullText)}
+      className={className}
+      text={reviewBody}
+      secondaryText={usernameRating}
+    />
+  );
+};
 
-    const { author, rating: reviewRating, reviewText } = review;
-
-    let username = '[invalid username]';
-    if (author && author.username) {
-      const { username: reviewUsername } = author;
-      username = reviewUsername;
-    }
-
-    let reviewBody = '[invalid review text]';
-    if (reviewText) {
-      reviewBody = reviewText;
-    }
-
-    const rating = reviewRating || '[invalid rating]';
-
-    const usernameRating = `${username} - ${rating}`;
-    return (
-      <SimpleListItem
-        onClick={() => this.toggleFullText()}
-        className={className}
-        text={reviewBody}
-        secondaryText={usernameRating}
-      />
-    );
-  }
-}
 ReviewListItem.propTypes = {
   review: ObjectPropTypes.Review.isRequired,
 };
+
+export default ReviewListItem;

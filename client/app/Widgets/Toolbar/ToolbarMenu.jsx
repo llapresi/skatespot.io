@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MenuSurface, MenuSurfaceAnchor, MenuItem } from '@rmwc/menu';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -7,56 +7,37 @@ import {
 } from '@rmwc/top-app-bar';
 import NoTransition from '../../Transitions/NoTransition';
 
-class ToolbarMenuParent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showMenu: false,
-    };
-    this.closeMenu = this.closeMenu.bind(this);
-    this.showMenu = this.showMenu.bind(this);
-  }
-
-  closeMenu() {
-    this.setState({ showMenu: false });
-  }
-
-  showMenu() {
-    this.setState({ showMenu: true });
-  }
-
-  render() {
-    const { userAuthed, username } = this.props;
-    const { showMenu } = this.state;
-    let toolbarMenu = (
-      <ToolbarLink to={{ pathname: '/login', state: NoTransition }}>
-        <MenuItem onClick={this.closeMenu}>Log-in / Sign-up</MenuItem>
-      </ToolbarLink>
-    );
-    if (userAuthed) {
-      toolbarMenu = (
-        <React.Fragment>
-          <ToolbarHeader>{username}</ToolbarHeader>
-          <ToolbarLink to="/profile">
-            <MenuItem onClick={this.closeMenu}>Change Password</MenuItem>
-          </ToolbarLink>
-          <ToolbarLink to="/logout">
-            <MenuItem onClick={this.closeMenu}>Log out</MenuItem>
-          </ToolbarLink>
-        </React.Fragment>
-      );
-    }
-    return (
-      <ToolbarMenu
-        isMenuVisible={showMenu}
-        closeMenuFunc={this.closeMenu}
-        showMenuFunc={this.showMenu}
-      >
-        {toolbarMenu}
-      </ToolbarMenu>
+const ToolbarMenuParent = (props) => {
+  const { userAuthed, username } = props;
+  const [showMenu, setShowMenu] = useState(false);
+  let toolbarMenu = (
+    <ToolbarLink to={{ pathname: '/login', state: NoTransition }}>
+      <MenuItem onClick={() => setShowMenu(false)}>Log-in / Sign-up</MenuItem>
+    </ToolbarLink>
+  );
+  if (userAuthed) {
+    toolbarMenu = (
+      <React.Fragment>
+        <ToolbarHeader>{username}</ToolbarHeader>
+        <ToolbarLink to="/profile">
+          <MenuItem onClick={() => setShowMenu(false)}>Change Password</MenuItem>
+        </ToolbarLink>
+        <ToolbarLink to="/logout">
+          <MenuItem onClick={() => setShowMenu(false)}>Log out</MenuItem>
+        </ToolbarLink>
+      </React.Fragment>
     );
   }
-}
+  return (
+    <ToolbarMenu
+      isMenuVisible={showMenu}
+      closeMenuFunc={() => setShowMenu(false)}
+      showMenuFunc={() => setShowMenu(true)}
+    >
+      {toolbarMenu}
+    </ToolbarMenu>
+  );
+};
 
 ToolbarMenuParent.propTypes = {
   userAuthed: PropTypes.bool.isRequired,

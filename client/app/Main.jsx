@@ -47,6 +47,7 @@ class App extends React.Component {
       selectedSpot: null, // Spot to show card of in base route
       userAuthed: false, // Stores local state regarding if we're logged in or not
       userAuthedName: '', // Username of the authed user
+      snackbarMessage: '',
     };
     this.onFetchSpots = this.onFetchSpots.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -59,7 +60,6 @@ class App extends React.Component {
     this.setSnackbar = this.setSnackbar.bind(this);
     this.checkUserAuth = this.checkUserAuth.bind(this);
     this.getUserGeolocation = this.getUserGeolocation.bind(this);
-    this.snackbar = React.createRef();
     this.setParentState = this.setParentState.bind(this);
   }
 
@@ -97,7 +97,7 @@ class App extends React.Component {
   }
 
   setSnackbar(message) {
-    this.snackbar.current.setSnackbar(message);
+    this.setState({ snackbarMessage: message });
   }
 
   getUserGeolocation() {
@@ -209,6 +209,7 @@ class App extends React.Component {
       selectedSpot,
       userAuthed,
       userAuthedName,
+      snackbarMessage,
     } = this.state;
     return (
       <ThemeProvider options={{
@@ -347,6 +348,7 @@ class App extends React.Component {
                           loc={center}
                           submitCallback={this.onNewSpot}
                           setSpotCallback={this.setNewSpotLocation}
+                          onError={this.setSnackbar}
                           onMount={() => {
                             this.setState({ addingNewSpot: 1, toolbarTitle: 'Add Spot' });
                             this.stopWatchingGeolocation();
@@ -399,7 +401,7 @@ class App extends React.Component {
             />
           </div>
         </div>
-        <Snackbar ref={this.snackbar} />
+        <Snackbar message={snackbarMessage} />
       </ThemeProvider>
     );
   }

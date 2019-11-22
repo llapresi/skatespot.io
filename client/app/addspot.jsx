@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@rmwc/button';
 import { TextField } from '@rmwc/textfield';
-import { Snackbar } from '@rmwc/snackbar';
 import PropTypes from 'prop-types';
 import history from './History';
 import AddSpotBottomSheet from './Widgets/AddSpotBottomSheet';
@@ -11,8 +10,6 @@ class SpotForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      errorMessage: '',
-      errorSnackbar: false,
       spotAdded: false,
       newSpotLocation: {},
       spotHasBeenSet: false,
@@ -35,6 +32,7 @@ class SpotForm extends React.Component {
   }
 
   createSpot(e) {
+    const { onError } = this.props;
     e.preventDefault();
     $.ajax({
       cache: false,
@@ -44,7 +42,7 @@ class SpotForm extends React.Component {
       dataType: 'json',
       error: (xhr) => {
         const messageObj = JSON.parse(xhr.responseText);
-        this.setState({ errorSnackbar: true, errorMessage: messageObj.error });
+        onError(messageObj.error);
         console.log(`Review Error: ${messageObj}`);
       },
     }).done(() => {
@@ -57,7 +55,7 @@ class SpotForm extends React.Component {
   render() {
     const { csrf } = this.props;
     const {
-      errorSnackbar, errorMessage, spotHasBeenSet, newSpotLocation,
+      spotHasBeenSet, newSpotLocation,
     } = this.state;
     let styleClasses = 'AddSpotBox';
     if (spotHasBeenSet) {
@@ -89,12 +87,6 @@ class SpotForm extends React.Component {
         </form>
         )
         }
-        <Snackbar
-          show={errorSnackbar}
-          onHide={() => this.setState({ errorSnackbar: false })}
-          message={errorMessage}
-          actionText="Close"
-        />
       </div>
     );
   }
@@ -107,6 +99,7 @@ SpotForm.propTypes = {
   }).isRequired,
   submitCallback: PropTypes.func.isRequired,
   setSpotCallback: PropTypes.func.isRequired,
+  onError: PropTypes.func.isRequired,
 };
 
 export default withRunOnMount(SpotForm);

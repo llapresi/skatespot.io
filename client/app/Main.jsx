@@ -6,7 +6,7 @@ import { Route, Switch } from 'react-router-dom';
 import { ThemeProvider } from '@rmwc/theme';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Map, TileLayer, AttributionControl } from 'react-leaflet';
-import SpotSearchParent from './Search';
+import SpotSearch from './Search';
 import SpotCard from './Widgets/SpotCard';
 import CardSlide from './Transitions/CardSlide';
 import ShowAddSpotBottomBar from './Transitions/ShowAddSpotBottomBar';
@@ -297,7 +297,7 @@ class App extends React.Component {
                     <Route
                       path="/search"
                       render={() => (
-                        <SpotSearchParent
+                        <SpotSearch
                           center={center}
                           onMount={this.setParentState}
                           onMountParams={{ toolbarTitle: 'Search' }}

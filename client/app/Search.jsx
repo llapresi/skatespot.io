@@ -19,39 +19,25 @@ const makePublicSpotsURL = (name = '', latlng = null, showAll = false) => {
   return `/spots?filter=${name}${locCenter}`;
 };
 
-const SpotSearchParent = (props) => {
+const SpotSearch = (props) => {
   const [spots, setSpots] = useState([]);
   const [showAll, setShowAll] = useState(false);
   const [searchField, setSearchField] = useState('');
 
   const { center } = props;
+  const showLocalControl = searchField === '';
 
   useEffect(() => {
-    const searchAll = searchField === '' ? showAll : true;
+    const searchAll = showLocalControl ? showAll : true;
     const toFetch = makePublicSpotsURL(searchField, center, searchAll);
     sendAjax('GET', toFetch, null, (data) => {
       setSpots(data.spots);
     });
   }, [searchField, showAll]);
 
-  const showLocalControl = searchField === '';
-
   return (
     <div className="skateSpotListParent desktop-400 horizontal__desktop">
-      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f2f2f2' }}>
-        <TextField
-          className="newSearchBar"
-          onChange={e => setSearchField(e.target.value)}
-          label="Search all spots"
-          withLeadingIcon={(
-            <TextFieldIcon
-              tabIndex="0"
-              icon="arrow_back"
-              onClick={() => history.push('/', { HideAddSpot })}
-            />
-          )}
-        />
-      </div>
+      <SpotSearchControl onChange={e => setSearchField(e.target.value)} />
       {showLocalControl
       && (
       <SpotNearbyControl
@@ -59,22 +45,43 @@ const SpotSearchParent = (props) => {
         showAll={showAll}
       />
       )}
-      <SpotSearch spots={spots} />
+      <SpotSearchList spots={spots} />
     </div>
   );
 };
 
-SpotSearchParent.propTypes = {
+SpotSearch.propTypes = {
   center: PropTypes.shape({
     lat: PropTypes.number,
     lng: PropTypes.number,
   }).isRequired,
 };
 
+const SpotSearchControl = ({ onChange }) => (
+  <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f2f2f2' }}>
+    <TextField
+      className="newSearchBar"
+      onChange={onChange}
+      label="Search all spots"
+      withLeadingIcon={(
+        <TextFieldIcon
+          tabIndex="0"
+          icon="arrow_back"
+          onClick={() => history.push('/', { HideAddSpot })}
+        />
+      )}
+    />
+  </div>
+);
+
+SpotSearchControl.propTypes = {
+  onChange: PropTypes.func.isRequired,
+};
+
 const SpotNearbyControl = ({ onClick, showAll }) => {
   console.log(showAll);
-  const labelText = showAll === true ? 'Showing All Spots' : 'Showing Nearby Spots';
-  const buttonText = showAll === true ? 'Show Nearby' : 'Show All';
+  const labelText = showAll ? 'Showing All Spots' : 'Showing Nearby Spots';
+  const buttonText = showAll ? 'Show Nearby' : 'Show All';
   return (
     <div style={{
       padding: '.5em 1em .5em 1em',
@@ -99,7 +106,7 @@ SpotNearbyControl.propTypes = {
   showAll: PropTypes.bool.isRequired,
 };
 
-const SpotSearch = ({ spots }) => (
+const SpotSearchList = ({ spots }) => (
   <List twoLine className="spotList">
     {spots.map((spot) => {
       let classNameString = '';
@@ -116,8 +123,8 @@ const SpotSearch = ({ spots }) => (
     })}
   </List>
 );
-SpotSearch.propTypes = {
+SpotSearchList.propTypes = {
   spots: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
-export default withRunOnMount(SpotSearchParent);
+export default withRunOnMount(SpotSearch);

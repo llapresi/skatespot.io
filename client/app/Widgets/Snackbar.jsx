@@ -33,10 +33,7 @@ class Snackbar extends React.Component {
   render() {
     const { message, showSnackbar } = this.state;
 
-    let style = 'mdc-snackbar';
-    if (showSnackbar === true) {
-      style = `${style} mdc-snackbar--active`;
-    }
+    const style = showSnackbar ? 'mdc-snackbar mdc-snackbar--active' : 'mdc-snackbar';
     return (
       <div
         className={style}

@@ -1,10 +1,10 @@
-import React from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import withRunOnMount from './Widgets/WithRunOnMount';
 
-class Logout extends React.Component {
-  componentDidMount() {
-    const { onLogout, onError } = this.props;
+const Logout = (props) => {
+  const { onLogout, onError } = props;
+  useEffect(() => {
     $.ajax({
       cache: false,
       type: 'GET',
@@ -18,12 +18,11 @@ class Logout extends React.Component {
         onError(`Logout Error: ${messageObj.error}`);
       },
     });
-  }
+  }, []);
 
-  render() {
-    return (null);
-  }
-}
+  return (null);
+};
+
 Logout.propTypes = {
   onLogout: PropTypes.func.isRequired,
   onError: PropTypes.func.isRequired,
